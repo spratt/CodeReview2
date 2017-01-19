@@ -2,16 +2,16 @@
   "rules": {
     "code": {
       "$key": {
-  			".read": true,
+        ".read": true,
         ".write": "!data.exists()",
-    		".validate": "newData.hasChildren(['text', 'lang'])"
+        ".validate": "newData.hasChildren(['text', 'lang'])"
       }
     },"comment": {
       "$codeKey": {
         ".read": true,
         "$key": {
-        	".write": "!data.exists()",
-    			".validate": "newData.hasChildren(['name', 'text', 'start', 'end'])"
+          ".write": "!data.exists()",
+          ".validate": "newData.hasChildren(['name', 'text', 'start', 'end'])"
         }
       }
     }
