@@ -1,0 +1,11 @@
+{
+  "rules": {
+    "code" : {
+    	".read": true,
+    	".write": true
+    },"comment" : {
+    	".read": true,
+    	".write": true  
+    }
+  }
+}

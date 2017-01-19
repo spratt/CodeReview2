@@ -52,12 +52,14 @@ const codereview2 = (function() {
         return firebase.database().ref().child(config.codeDir).push().key;
     }
     function submitCode(ob) {
-        if(!ob || !ob.text || !ob.mime) throw "Tried to submit invalid code.";
+        if(!ob || !ob.text || !ob.lang) throw "Tried to submit invalid code.";
         config.codeKey = newCodeKey();
         ob.time = firebase.database.ServerValue.TIMESTAMP;
         firebase.database().ref(config.codeDir + '/' + config.codeKey).set(ob).
             then(function() {
                 toast('Code submitted!');
+                history.pushState(null, null,
+                                  window.location.href + '?' + config.codeKey);
                 switchToReviewMode();
             });
     }
@@ -118,28 +120,47 @@ const codereview2 = (function() {
         changeMode();
     }
     function parseCodeKeyFromURL() {
-        // TODO
+        return window.location.search[0] &&
+            window.location.search.substring(1);
     }
     function loadCode(codeKey) {
         config.codeKey = codeKey;
-        // TODO
+        firebase.database().ref(config.codeDir + '/' + codeKey).once('value').
+            then(function(snapshot) {
+                const lang = snapshot.val().lang;
+                const time = snapshot.val().time;
+                const text = snapshot.val().text;
+                const path = codereview2modes[lang].path;
+                const mime = codereview2modes[lang].mime;
+                config.cm.getDoc().setValue(text);
+                setMode(path, mime);
+                switchToReviewMode();
+            });
     }
     function loadComments() {
         // TODO
     }
     function init() {
+        console.log(window.location);
         const ta = document.getElementById('code');
         config.cm = CodeMirror.fromTextArea(ta,{
             lineNumbers: true,
         });
-        setupModes();
         firebase.initializeApp(firebaseConfig);
-        document.getElementById('submit-code').
-            addEventListener('click', function() {
-                const text = config.cm.getDoc().getValue();
-                const mime = document.getElementById('lang').value;
-                submitCode({text:text, mime:mime});
-            });
+        const codeKey = parseCodeKeyFromURL();
+        if(codeKey) {
+            config.cm.getDoc().setValue('');
+            loadCode(codeKey);
+        } else {
+            setupModes();
+            document.getElementById('submit-code').
+                addEventListener('click', function() {
+                    const text = config.cm.getDoc().getValue();
+                    const select = document.getElementById('lang');
+                    const lang = select.options[select.selectedIndex].text;
+                    submitCode({text:text, lang:lang});
+                });
+        }
         document.getElementById('submit-comment').
             addEventListener('click',function() {
                 const codeKey = document.getElementById('code-key').value;
