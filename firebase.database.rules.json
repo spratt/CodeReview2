@@ -8,7 +8,7 @@
       }
     },"comment": {
       "$codeKey": {
-  			".read": true,
+        ".read": true,
         "$key": {
         	".write": "!data.exists()",
     			".validate": "newData.hasChildren(['name', 'text', 'start', 'end'])"
