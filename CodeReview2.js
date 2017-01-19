@@ -272,8 +272,10 @@ const codereview2 = (function() {
             addEventListener('click',function() {
                 const name = document.getElementById('commenter').value;
                 const text = document.getElementById('comment-text').value;
-                const start = document.getElementById('line-start').value;
-                const end = document.getElementById('line-end').value;
+                const start = parseInt(
+                    document.getElementById('line-start').value, 10);
+                const end = parseInt(
+                    document.getElementById('line-end').value,10);
                 submitComment({name:name,text:text,start:start,end:end});
             });
         document.getElementById('close-comment').
