@@ -125,14 +125,12 @@ const codereview2 = (function() {
             closeComments();
         openSidebar();
         config.openLine = line;
-        console.log('open comments on line', line);
         config.cm.getDoc().
             setGutterMarker(line, 'mark',
                             commentMarker({open:true,callback:function() {
                                 closeComments();
                             }}));
         const height = config.cm.heightAtLine(line, 'local');
-        console.log('height: ', height);
         const sidebar = document.getElementById('sidebar');
         sidebar.style = 'top: ' + height + 'px';
         config.comments[line].forEach(function(comment) {
