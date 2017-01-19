@@ -7,6 +7,8 @@ const codereview2 = (function() {
         opacityStep: 0.1,
         fadeTime: 1000,
         solidTime: 5000,
+        openLine: -1,
+        comments: {}
     };
     const firebaseConfig = {
         apiKey: "AIzaSyDk04YB7GsAO6oHv0VH3gVil5T2_B0c9co",
@@ -16,7 +18,7 @@ const codereview2 = (function() {
         messagingSenderId: "495817769946",
     };
     function toast(message) {
-        var opacity = 0;
+        let opacity = 0;
         const toastContainer = document.getElementById('message');
         toastContainer.className = 'hidden';
         toastContainer.innerHTML = message;
@@ -100,11 +102,67 @@ const codereview2 = (function() {
                 toast('Comment submitted!');
             });
     }
-    function commentMarker() {
-        var marker = document.createElement("div");
+    function commentMarker(ob) {
+        const marker = document.createElement("div");
         marker.style.color = "#0a0";
-        marker.innerHTML = "▶";
+        if(ob && ob.open) {
+            marker.innerHTML = "◀";
+        } else {
+            marker.innerHTML = "▶";
+        }
+        if(ob && ob.callback)
+            marker.addEventListener('click', ob.callback);
         return marker;
+    }
+    function openSidebar() {
+        document.getElementById('sidebar').className = '';
+    }
+    function closeSidebar() {
+        document.getElementById('sidebar').className = 'hidden';
+    }
+    function openComments(line) {
+        if(config.openLine > 0)
+            closeComments();
+        openSidebar();
+        config.openLine = line;
+        console.log('open comments on line', line);
+        config.cm.getDoc().
+            setGutterMarker(line, 'mark',
+                            commentMarker({open:true,callback:function() {
+                                closeComments();
+                            }}));
+        const height = config.cm.heightAtLine(line, 'local');
+        console.log('height: ', height);
+        const sidebar = document.getElementById('sidebar');
+        sidebar.style = 'top: ' + height + 'px';
+        config.comments[line].forEach(function(comment) {
+            const box = document.createElement('div');
+            box.className = 'comment';
+            box.id = comment.key;
+            const nameField = document.createElement('div');
+            nameField.innerHTML = comment.name + ' says:';
+            box.appendChild(nameField);
+            const textField = document.createElement('div');
+            textField.innerHTML = comment.text;
+            box.appendChild(textField);
+            sidebar.appendChild(box);
+        });
+    }
+    function closeComments() {
+        closeSidebar();
+        const sidebar = document.getElementById('sidebar');
+        while(sidebar.hasChildNodes()) {
+            sidebar.removeChild(sidebar.lastChild);
+        }
+        closeMarker(config.openLine);
+        config.openLine = -1;
+    }
+    function closeMarker(line) {
+        config.cm.getDoc().
+            setGutterMarker(line, 'mark',
+                            commentMarker({callback:function() {
+                                openComments(line);
+                            }}));
     }
     function loadComments() {
         let ref =
@@ -115,9 +173,16 @@ const codereview2 = (function() {
             const start = parseInt(data.val().start, 10) - 1;
             const end = data.val().end;
             const time = data.val().time;
-            config.cm.getDoc().setGutterMarker(start, 'mark', commentMarker());
-            console.log('comment',
-                        {name:name,text:text,start:start,end:end,time:time});
+            const comment = {key:data.getKey(),
+                             name:name,
+                             text:text,
+                             start:start,
+                             end:end,
+                             time:time};
+            closeMarker(start);
+            if(!config.comments[start])
+                config.comments[start] = [];
+            config.comments[start].push(comment);
         });
     }
     const loaded = [];
@@ -125,7 +190,7 @@ const codereview2 = (function() {
         if(!path) return;
         if(loaded.indexOf(path) > -1) return callback();
         loaded.push(path);
-        var scr = document.createElement('script');
+        const scr = document.createElement('script');
         scr.setAttribute('src', path);
         if(callback) {
             if(scr.readyState) {

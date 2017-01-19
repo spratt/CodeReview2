@@ -21,7 +21,8 @@
         <h3>By <a href="http://pr4tt.com">Simon Pratt</a></h3>
         <span class="right">
           <span id="message" class="hidden"></span>
-        </span><br>
+        </span><br clear="all">
+        <span id="sidebar" class="hidden"></span>
 <textarea id="code">
 // Paste or write code here that you would like to have reviewed.
 // Make sure to select the appropriate language for syntax highlighting!
@@ -45,9 +46,6 @@ int main(void) {
           <input id="line-start" type="hidden" value="1">
           <input id="line-end" type="hidden" value="1">
           <button id="submit-comment">Submit</button>
-        </div>
-        <div id="comment-template" class="hidden">
-          <div class="comment-text"></div>
         </div>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.22.0/codemirror.min.js"></script>
         <script src="https://www.gstatic.com/firebasejs/3.6.2/firebase.js">

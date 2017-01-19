@@ -19,6 +19,7 @@ a:hover {
 }
 .CodeMirror {
     border: 1px solid #333;
+    height: 10%;
 }
 span.right {
     float: right;
@@ -28,4 +29,16 @@ span.right {
 }
 .mark {
     width: 0.8em;
+}
+span#sidebar {
+    position: relative;
+    width: 20em;
+    height: 100%;
+    float: left;
+}
+.comment {
+    margin: 0.1em;
+    padding: 0.2em;
+    border: 1px solid #333;
+    background-color: white;
 }
