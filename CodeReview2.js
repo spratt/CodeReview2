@@ -100,15 +100,22 @@ const codereview2 = (function() {
                 toast('Comment submitted!');
             });
     }
+    function commentMarker() {
+        var marker = document.createElement("div");
+        marker.style.color = "#0a0";
+        marker.innerHTML = "▶";
+        return marker;
+    }
     function loadComments() {
         let ref =
             firebase.database().ref(config.commentDir + '/' + config.codeKey);
         ref.on('child_added', function(data) {
             const name = data.val().name;
             const text = data.val().text;
-            const start = data.val().start;
+            const start = parseInt(data.val().start, 10) - 1;
             const end = data.val().end;
             const time = data.val().time;
+            config.cm.getDoc().setGutterMarker(start, 'mark', commentMarker());
             console.log('comment',
                         {name:name,text:text,start:start,end:end,time:time});
         });
@@ -164,6 +171,7 @@ const codereview2 = (function() {
         const ta = document.getElementById('code');
         config.cm = CodeMirror.fromTextArea(ta,{
             lineNumbers: true,
+            gutters: ['mark'],
         });
         firebase.initializeApp(firebaseConfig);
         const codeKey = parseCodeKeyFromURL();

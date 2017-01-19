@@ -26,3 +26,6 @@ span.right {
 .hidden {
     display: none;
 }
+.mark {
+    width: 0.8em;
+}
