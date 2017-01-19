@@ -1,11 +1,19 @@
 {
   "rules": {
-    "code" : {
-    	".read": true,
-    	".write": true
-    },"comment" : {
-    	".read": true,
-    	".write": true  
+    "code": {
+      "$key": {
+  			".read": true,
+        ".write": "!data.exists()",
+    		".validate": "newData.hasChildren(['text', 'lang'])"
+      }
+    },"comment": {
+      "$codeKey": {
+  			".read": true,
+        "$key": {
+        	".write": "!data.exists()",
+    			".validate": "newData.hasChildren(['name', 'text', 'start', 'end'])"
+        }
+      }
     }
   }
 }
