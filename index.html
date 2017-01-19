@@ -22,7 +22,18 @@
         <span class="right">
           <span id="message" class="hidden"></span>
         </span><br clear="all">
-        <span id="sidebar" class="hidden"></span>
+        <span id="sidebar" class="hidden">
+          <div id="comment-container" class="hidden">
+            <input id="commenter" type="text" value="Anonymous">
+            <button id="close-comment">X</button>
+            <br>
+            <textarea id="comment-text"></textarea>
+            <input id="code-key" type="hidden" value="-1">
+            <input id="line-start" type="hidden" value="1">
+            <input id="line-end" type="hidden" value="1">
+            <button id="submit-comment">Submit</button>
+          </div>
+        </span>
 <textarea id="code">
 // Paste or write code here that you would like to have reviewed.
 // Make sure to select the appropriate language for syntax highlighting!
@@ -39,14 +50,6 @@ int main(void) {
 </textarea>
         <select id="lang"></select>
         <button id="submit-code">Submit</button>
-        <div id="comment-container" class="hidden">
-          <input id="commenter" type="text" value="Anonymous"><br>
-          <textarea id="comment-text"></textarea>
-          <input id="code-key" type="hidden" value="-1">
-          <input id="line-start" type="hidden" value="1">
-          <input id="line-end" type="hidden" value="1">
-          <button id="submit-comment">Submit</button>
-        </div>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.22.0/codemirror.min.js"></script>
         <script src="https://www.gstatic.com/firebasejs/3.6.2/firebase.js">
         </script>

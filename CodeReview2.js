@@ -43,14 +43,20 @@ const codereview2 = (function() {
         }
         fadeIn();
     }
+    function showCommentInput() {
+        document.getElementById('comment-container').className = '';
+    }
+    function hideCommentInput() {
+        document.getElementById('comment-container').className = 'hidden';
+    }
     function switchToReviewMode() {
         config.mode = 'review';
         config.cm.setOption('readOnly', true);
-        document.getElementById('comment-container').className = '';
         document.getElementById('code-key').value = config.codeKey;
         document.getElementById('lang').remove();
         document.getElementById('submit-code').remove();
         config.cm.on('beforeSelectionChange', function(i,o) {
+            closeComments();
             let start = 1 + o.ranges[0].anchor.line;
             let end = 1 + o.ranges[0].head.line;
             if(start > end) {
@@ -60,6 +66,9 @@ const codereview2 = (function() {
             }
             document.getElementById('line-start').value = start;
             document.getElementById('line-end').value = end;
+            showCommentInput();
+            setSidebarTop(start - 1);
+            openSidebar();
         });
         loadComments();
     }
@@ -99,6 +108,8 @@ const codereview2 = (function() {
         firebase.database().
             ref(config.commentDir + '/' + config.codeKey).push().set(ob).
             then(function() {
+                openComments(parseInt(ob.start, 10) - 1);
+                document.getElementById('comment-text').value = '';
                 toast('Comment submitted!');
             });
     }
@@ -120,7 +131,12 @@ const codereview2 = (function() {
     function closeSidebar() {
         document.getElementById('sidebar').className = 'hidden';
     }
+    function setSidebarTop(line) {
+        const height = config.cm.heightAtLine(line, 'local');
+        document.getElementById('sidebar').style = 'top: ' + height + 'px';
+    }
     function openComments(line) {
+        hideCommentInput();
         if(config.openLine > 0)
             closeComments();
         openSidebar();
@@ -130,9 +146,7 @@ const codereview2 = (function() {
                             commentMarker({open:true,callback:function() {
                                 closeComments();
                             }}));
-        const height = config.cm.heightAtLine(line, 'local');
-        const sidebar = document.getElementById('sidebar');
-        sidebar.style = 'top: ' + height + 'px';
+        setSidebarTop(line);
         config.comments[line].forEach(function(comment) {
             const box = document.createElement('div');
             box.className = 'comment';
@@ -143,14 +157,17 @@ const codereview2 = (function() {
             const textField = document.createElement('div');
             textField.innerHTML = comment.text;
             box.appendChild(textField);
-            sidebar.appendChild(box);
+            document.getElementById('sidebar').appendChild(box);
         });
     }
     function closeComments() {
         closeSidebar();
         const sidebar = document.getElementById('sidebar');
         while(sidebar.hasChildNodes()) {
-            sidebar.removeChild(sidebar.lastChild);
+            if(sidebar.lastChild.className === 'comment')
+                sidebar.removeChild(sidebar.lastChild);
+            else
+                break;
         }
         closeMarker(config.openLine);
         config.openLine = -1;
@@ -258,6 +275,11 @@ const codereview2 = (function() {
                 const start = document.getElementById('line-start').value;
                 const end = document.getElementById('line-end').value;
                 submitComment({name:name,text:text,start:start,end:end});
+            });
+        document.getElementById('close-comment').
+            addEventListener('click', function() {
+                closeSidebar();
+                hideCommentInput();
             });
     }
     return {init:init, toast:toast};

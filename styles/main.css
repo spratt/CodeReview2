@@ -42,3 +42,11 @@ span#sidebar {
     border: 1px solid #333;
     background-color: white;
 }
+#commenter {
+    width: 86%;
+}
+#comment-text {
+    width: 95%;
+    height: 10em;
+    resize: vertical;
+}
