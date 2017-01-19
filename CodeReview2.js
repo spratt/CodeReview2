@@ -44,15 +44,22 @@ const codereview2 = (function() {
     function switchToReviewMode() {
         config.mode = 'review';
         config.cm.setOption('readOnly', true);
+        document.getElementById('comment-container').className = '';
         document.getElementById('code-key').value = config.codeKey;
         document.getElementById('lang').remove();
         document.getElementById('submit-code').remove();
         config.cm.on('beforeSelectionChange', function(i,o) {
-            const start = 1 + o.ranges[0].anchor.line;
-            const end = 1 + o.ranges[0].head.line;
+            let start = 1 + o.ranges[0].anchor.line;
+            let end = 1 + o.ranges[0].head.line;
+            if(start > end) {
+                const temp = start;
+                start = end;
+                end = temp;
+            }
             document.getElementById('line-start').value = start;
             document.getElementById('line-end').value = end;
         });
+        loadComments();
     }
     function newCodeKey() {
         return firebase.database().ref().child(config.codeDir).push().key;
@@ -69,18 +76,42 @@ const codereview2 = (function() {
                 switchToReviewMode();
             });
     }
-    function newCommentKey() {
-        return firebase.database().ref().child(config.commentDir).push().key;
+    function loadCode(codeKey) {
+        config.codeKey = codeKey;
+        firebase.database().ref(config.codeDir + '/' + codeKey).once('value').
+            then(function(snapshot) {
+                const lang = snapshot.val().lang;
+                const time = snapshot.val().time;
+                const text = snapshot.val().text;
+                const path = codereview2modes[lang].path;
+                const mime = codereview2modes[lang].mime;
+                config.cm.getDoc().setValue(text);
+                setMode(path, mime);
+                switchToReviewMode();
+            });
     }
     function submitComment(ob) {
-        if(!ob || !ob.codeKey || !ob.text || !ob.start || !ob.end)
+        if(!ob || !ob.name || !ob.text || !ob.start || !ob.end)
             throw "Tried to submit invalid comment.";
         ob.time = firebase.database.ServerValue.TIMESTAMP;
         firebase.database().
-            ref(config.commentDir + '/' + newCommentKey()).set(ob).
+            ref(config.commentDir + '/' + config.codeKey).push().set(ob).
             then(function() {
                 toast('Comment submitted!');
             });
+    }
+    function loadComments() {
+        let ref =
+            firebase.database().ref(config.commentDir + '/' + config.codeKey);
+        ref.on('child_added', function(data) {
+            const name = data.val().name;
+            const text = data.val().text;
+            const start = data.val().start;
+            const end = data.val().end;
+            const time = data.val().time;
+            console.log('comment',
+                        {name:name,text:text,start:start,end:end,time:time});
+        });
     }
     const loaded = [];
     function loadScript(path, callback) {
@@ -129,23 +160,6 @@ const codereview2 = (function() {
         return window.location.search[0] &&
             window.location.search.substring(1);
     }
-    function loadCode(codeKey) {
-        config.codeKey = codeKey;
-        firebase.database().ref(config.codeDir + '/' + codeKey).once('value').
-            then(function(snapshot) {
-                const lang = snapshot.val().lang;
-                const time = snapshot.val().time;
-                const text = snapshot.val().text;
-                const path = codereview2modes[lang].path;
-                const mime = codereview2modes[lang].mime;
-                config.cm.getDoc().setValue(text);
-                setMode(path, mime);
-                switchToReviewMode();
-            });
-    }
-    function loadComments() {
-        // TODO
-    }
     function init() {
         const ta = document.getElementById('code');
         config.cm = CodeMirror.fromTextArea(ta,{
@@ -168,11 +182,11 @@ const codereview2 = (function() {
         }
         document.getElementById('submit-comment').
             addEventListener('click',function() {
-                const codeKey = document.getElementById('code-key').value;
-                const text = document.getElementById('comment').value;
+                const name = document.getElementById('commenter').value;
+                const text = document.getElementById('comment-text').value;
                 const start = document.getElementById('line-start').value;
                 const end = document.getElementById('line-end').value;
-                submitComment({codeKey:codeKey,text:text,start:start,end:end});
+                submitComment({name:name,text:text,start:start,end:end});
             });
     }
     return {init:init, toast:toast};
