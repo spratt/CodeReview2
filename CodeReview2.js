@@ -47,6 +47,12 @@ const codereview2 = (function() {
         document.getElementById('code-key').value = config.codeKey;
         document.getElementById('lang').remove();
         document.getElementById('submit-code').remove();
+        config.cm.on('beforeSelectionChange', function(i,o) {
+            const start = 1 + o.ranges[0].anchor.line;
+            const end = 1 + o.ranges[0].head.line;
+            document.getElementById('line-start').value = start;
+            document.getElementById('line-end').value = end;
+        });
     }
     function newCodeKey() {
         return firebase.database().ref().child(config.codeDir).push().key;
@@ -141,7 +147,6 @@ const codereview2 = (function() {
         // TODO
     }
     function init() {
-        console.log(window.location);
         const ta = document.getElementById('code');
         config.cm = CodeMirror.fromTextArea(ta,{
             lineNumbers: true,
