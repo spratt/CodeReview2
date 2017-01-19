@@ -1,0 +1,53 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>CodeReview 2</title>
+        <meta name="description"
+              content="A tool for reviewing code in the browser.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.22.0/codemirror.min.css">
+        <link rel="stylesheet" href="styles/main.css">
+    </head>
+    <body>
+        <!--[if lte IE 9]>
+            <p class="browserupgrade">You are using an 
+              <strong>outdated</strong> browser. Please 
+              <a href="http://browsehappy.com/">upgrade your browser</a>
+              to improve your experience and security.</p>
+            <![endif]-->
+        <h1><a href="">CodeReview 2</a></h1>
+        <h3>By <a href="http://pr4tt.com">Simon Pratt</a></h3>
+        <span class="right">
+          <span id="message" class="hidden"></span>
+        </span><br>
+<textarea id="code">
+// Paste or write code here that you would like to have reviewed.
+// Make sure to select the appropriate language for syntax highlighting!
+// When you're done, hit Submit.  You will be redirected to a new page with
+// the same code.  Share the new URL, and others can comment on your code.  :)
+
+#include <stdio.h>
+
+int main(void) {
+  printf("Hello, CodeReview 2!\n");
+  return 0;
+}
+</textarea>
+        <select id="lang"></select>
+        <button id="submit-code">Submit</button>
+        <div id="comment-container">
+          <textarea id="comment"></textarea>
+          <input id="code-key" type="hidden" value="-1">
+          <input id="line-start" type="hidden" value="-1">
+          <input id="line-end" type="hidden" value="-1">
+          <button id="submit-comment">Submit</button>
+        </div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.22.0/codemirror.min.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/3.6.2/firebase.js">
+        </script>
+        <script src="CodeReview2modes.js"></script>
+        <script src="CodeReview2.js"></script>
+    </body>
+</html>
