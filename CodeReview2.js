@@ -136,7 +136,7 @@ const codereview2 = (function() {
         document.getElementById('sidebar').style = 'top: ' + height + 'px';
     }
     function openComments(line) {
-        hideCommentInput();
+        showCommentInput();
         if(config.openLine > 0)
             closeComments();
         openSidebar();
@@ -147,7 +147,12 @@ const codereview2 = (function() {
                                 closeComments();
                             }}));
         setSidebarTop(line);
-        config.comments[line].forEach(function(comment) {
+        const sidebar = document.getElementById('sidebar');
+        for(let comment of config.comments[line]) {
+            if(comment === config.comments[line][0]) {
+                config.cm.getDoc().setSelection({line:comment.start,ch:0},
+                                                {line:comment.end,ch:0});
+            }
             const box = document.createElement('div');
             box.className = 'comment';
             box.id = comment.key;
@@ -157,17 +162,25 @@ const codereview2 = (function() {
             const textField = document.createElement('div');
             textField.innerHTML = comment.text;
             box.appendChild(textField);
-            document.getElementById('sidebar').appendChild(box);
-        });
+            sidebar.appendChild(box);
+        }
+        if(!sidebar.hasChildNodes() ||
+           sidebar.firstChild.id !== 'comment-container') {
+            throw "Error while moving comment input";
+        }
+        const commentInput = sidebar.firstChild;
+        sidebar.removeChild(commentInput);
+        sidebar.appendChild(commentInput);
     }
     function closeComments() {
         closeSidebar();
         const sidebar = document.getElementById('sidebar');
         while(sidebar.hasChildNodes()) {
-            if(sidebar.lastChild.className === 'comment')
-                sidebar.removeChild(sidebar.lastChild);
-            else
+            console.log('closing',sidebar.firstChild);
+            if(sidebar.firstChild.id === 'comment-container')
                 break;
+            else
+                sidebar.firstChild.remove();
         }
         closeMarker(config.openLine);
         config.openLine = -1;
