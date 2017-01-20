@@ -43,12 +43,6 @@ const codereview2 = (function() {
         }
         fadeIn();
     }
-    function showCommentInput() {
-        document.getElementById('comment-container').className = '';
-    }
-    function hideCommentInput() {
-        document.getElementById('comment-container').className = 'hidden';
-    }
     function switchToReviewMode() {
         config.mode = 'review';
         config.cm.setOption('readOnly', true);
@@ -66,7 +60,6 @@ const codereview2 = (function() {
             }
             document.getElementById('line-start').value = start;
             document.getElementById('line-end').value = end;
-            showCommentInput();
             setSidebarTop(start - 1);
             openSidebar();
         });
@@ -136,17 +129,8 @@ const codereview2 = (function() {
         document.getElementById('sidebar').style = 'top: ' + height + 'px';
     }
     function openComments(line) {
-        showCommentInput();
         if(config.openLine > 0)
             closeComments();
-        openSidebar();
-        config.openLine = line;
-        config.cm.getDoc().
-            setGutterMarker(line, 'mark',
-                            commentMarker({open:true,callback:function() {
-                                closeComments();
-                            }}));
-        setSidebarTop(line);
         const sidebar = document.getElementById('sidebar');
         for(let comment of config.comments[line]) {
             if(comment === config.comments[line][0]) {
@@ -164,6 +148,14 @@ const codereview2 = (function() {
             box.appendChild(textField);
             sidebar.appendChild(box);
         }
+        setSidebarTop(line);
+        openSidebar();
+        config.openLine = line;
+        config.cm.getDoc().
+            setGutterMarker(line, 'mark',
+                            commentMarker({open:true,callback:function() {
+                                closeComments();
+                            }}));
         if(!sidebar.hasChildNodes() ||
            sidebar.firstChild.id !== 'comment-container') {
             throw "Error while moving comment input";
@@ -176,7 +168,6 @@ const codereview2 = (function() {
         closeSidebar();
         const sidebar = document.getElementById('sidebar');
         while(sidebar.hasChildNodes()) {
-            console.log('closing',sidebar.firstChild);
             if(sidebar.firstChild.id === 'comment-container')
                 break;
             else
@@ -294,7 +285,6 @@ const codereview2 = (function() {
         document.getElementById('close-comment').
             addEventListener('click', function() {
                 closeSidebar();
-                hideCommentInput();
             });
     }
     return {init:init, toast:toast};
