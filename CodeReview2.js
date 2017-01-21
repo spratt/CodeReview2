@@ -284,7 +284,7 @@ const codereview2 = (function() {
             });
         document.getElementById('close-comment').
             addEventListener('click', function() {
-                closeSidebar();
+                closeComments();
             });
     }
     return {init:init, toast:toast};
