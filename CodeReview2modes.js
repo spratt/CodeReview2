@@ -12,6 +12,10 @@ const codereview2modes = {
         mime: "text/x-csharp",
         path: "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.22.2/mode/clike/clike.min.js"
     },
+    "Go" : {
+        mime: "text/x-go",
+        path: "https://cdnjs.cloudflare.com/ajax/libs/codemirror/4.10.0/mode/go/go.min.js"
+    },
     "Java" : {
         mime: "text/x-java",
         path: "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.22.2/mode/clike/clike.min.js"
